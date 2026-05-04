@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dialogue Bridge</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #111;
+  color: white;
+  overflow: hidden;
+}
+
+.screen {
+  width: 100%;
+  height: 50vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.top {
+  background: #1a1a1a;
+  border-bottom: 1px solid #333;
+}
+
+.bottom {
+  background: #0f0f0f;
+  transform: rotate(180deg);
+  border-top: 1px solid #333;
+}
+
+.text {
+  font-size: 20px;
+  line-height: 1.4;
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+button {
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: #2a2a2a;
+  color: white;
+  font-size: 16px;
+}
+
+button:active {
+  background: #444;
+}
+
+.selectors {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+select {
+  flex: 1;
+  padding: 6px;
+  border-radius: 6px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="screen top">
+  <div>
+    <div class="selectors">
+      <select id="langTop">
+        <option>FR</option>
+        <option>PL</option>
+        <option>DARI</option>
+        <option>FARSI</option>
+      </select>
+    </div>
+    <div id="textTop" class="text"></div>
+  </div>
+  <div id="choicesTop" class="choices"></div>
+</div>
+
+<div class="screen bottom">
+  <div>
+    <div class="selectors">
+      <select id="langBottom">
+        <option>FR</option>
+        <option>PL</option>
+        <option>DARI</option>
+        <option>FARSI</option>
+      </select>
+    </div>
+    <div id="textBottom" class="text"></div>
+  </div>
+  <div id="choicesBottom" class="choices"></div>
+</div>
+
+<script>
+
+// --- SCRIPT STRUCTURE ---
+const script = [
+  {
+    A: "Bonjour ! Enchanté de vous rencontrer. Comment allez-vous ?",
+    B_choices: [
+      "Très bien merci ! Et vous, d'où venez-vous ?",
+      "Ça va, merci. Et vous, qu'est-ce qui vous amène ici ?",
+      "Je suis un peu pressé. On fait court ? Que voulez-vous savoir ?"
+    ]
+  },
+  {
+    A_responses: [
+      "Je viens d'ici.",
+      "Je suis ici pour le travail.",
+      "Je cherche juste à discuter."
+    ],
+    A_question: "Et vous, est-ce que vous habitez dans le quartier ou êtes-vous de passage ?",
+    B_choices: [
+      "J'habite ici depuis longtemps, j'adore ce coin ! Vous voulez que je vous montre quelque chose ?",
+      "Je suis de passage pour quelques jours. Est-ce que vous connaissez d'autres personnes ici ?",
+      "Je ne suis pas d'ici et je ne reste pas longtemps. Vous avez bientôt fini votre visite ?"
+    ]
+  },
+  {
+    A_responses: [
+      "J'aimerais bien voir un monument.",
+      "Non, je ne connais personne.",
+      "Je repars bientôt."
+    ],
+    A_question: "À part voyager, qu'est-ce que vous aimez faire de votre temps libre ?",
+    B_choices: [
+      "J'adore la musique et découvrir de nouveaux restos. Et vous, quel est votre passetemps favori ?",
+      "Je m'occupe de ma famille et je travaille beaucoup. Est-ce que vous avez beaucoup de hobbies ?",
+      "Je n'ai pas vraiment le temps pour les loisirs en ce moment. C'est important pour vous ?"
+    ]
+  },
+  {
+    A_responses: [
+      "Moi aussi j'adore la musique.",
+      "C'est vrai que le travail prend du temps.",
+      "Oui, c'est essentiel."
+    ],
+    A_question: "C'était sympa de discuter. On s'échange nos contacts ou on s'arrête là ?",
+    B_choices: [
+      "Avec plaisir ! Voici mon numéro.",
+      "Pourquoi pas, mais je préfère qu'on se recroise ici.",
+      "On va s'arrêter là. Bonne route !"
+    ]
+  }
+];
+
+let step = 0;
+
+// --- UI REF ---
+const textTop = document.getElementById("textTop");
+const textBottom = document.getElementById("textBottom");
+const choicesTop = document.getElementById("choicesTop");
+const choicesBottom = document.getElementById("choicesBottom");
+
+// --- INIT ---
+function start() {
+  textTop.innerText = script[0].A;
+  renderChoicesBottom(script[0].B_choices);
+}
+
+// --- RENDER ---
+function renderChoicesBottom(choices) {
+  choicesBottom.innerHTML = "";
+  choices.forEach((choice, index) => {
+    const btn = document.createElement("button");
+    btn.innerText = choice;
+    btn.onclick = () => handleChoice(index);
+    choicesBottom.appendChild(btn);
+  });
+}
+
+// --- FLOW ---
+function handleChoice(index) {
+
+  const current = script[step];
+
+  // afficher choix B sur écran A
+  textTop.innerText = current.B_choices[index];
+
+  step++;
+
+  if (step >= script.length) {
+    choicesBottom.innerHTML = "";
+    return;
+  }
+
+  const next = script[step];
+
+  // réponse A
+  textBottom.innerText = next.A_responses[index];
+
+  // question A
+  setTimeout(() => {
+    textBottom.innerText = next.A_responses[index] + "\n\n" + next.A_question;
+    renderChoicesBottom(next.B_choices);
+  }, 500);
+}
+
+start();
+
+</script>
+
+</body>
+</html>
